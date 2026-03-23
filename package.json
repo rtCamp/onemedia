@@ -20,12 +20,12 @@
 		"uninstall.php"
 	],
 	"dependencies": {
-		"@wordpress/api-fetch": "^7.40.0",
+		"@wordpress/api-fetch": "^7.41.0",
 		"@wordpress/components": "^30.9.0",
-		"@wordpress/compose": "^7.40.0",
-		"@wordpress/dom-ready": "^4.40.0",
+		"@wordpress/compose": "^7.41.0",
+		"@wordpress/dom-ready": "^4.41.0",
 		"@wordpress/i18n": "^6.13.0",
-		"@wordpress/icons": "^11.7.0",
+		"@wordpress/icons": "^11.8.0",
 		"@wordpress/primitives": "^4.40.0",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1"
