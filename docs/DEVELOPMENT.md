@@ -114,7 +114,7 @@ Code contributions, bug reports, and feature requests are welcome! The following
 ├── onemedia.php
 ├── package-lock.json
 ├── package.json
-├── phpcs.xml.dist
+├── .phpcs.xml.dist
 ├── README.md
 ├── readme.txt
 ├── uninstall.php

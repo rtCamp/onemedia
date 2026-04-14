@@ -48,7 +48,7 @@ jobs:
               - 'composer.*'
             phpcs:
               - '.github/workflows/reusable-phpcs.yml'
-              - 'phpcs.xml.dist'
+              - '.phpcs.xml.dist'
             phpstan:
               - '.github/workflows/reusable-phpstan.yml'
               - 'phpstan.neon.dist'
