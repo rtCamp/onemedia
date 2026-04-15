@@ -1,4 +1,4 @@
-const wpConfig = require( '@wordpress/prettier-config' );
+const wpConfig = require('@wordpress/prettier-config');
 
 /**
  * @see https://prettier.io/docs/configuration
@@ -7,7 +7,7 @@ const wpConfig = require( '@wordpress/prettier-config' );
 const config = {
 	...wpConfig,
 	overrides: [
-		...( wpConfig.overrides || [] ),
+		...(wpConfig.overrides || []),
 		{
 			files: '*.md',
 			options: {
@@ -16,7 +16,7 @@ const config = {
 			},
 		},
 		{
-			files: [ '*.yml', '*.yaml' ],
+			files: ['*.yml', '*.yaml'],
 			options: {
 				tabWidth: 2,
 				useTabs: false,

@@ -13,12 +13,12 @@ const wpEnvTestConfig = JSON.parse(
 	port?: number;
 };
 const wpBaseUrl =
-	process.env.WP_BASE_URL ||
+	process.env['WP_BASE_URL'] ||
 	`http://localhost:${String(wpEnvTestConfig.port ?? 8889)}`;
 
-process.env.WP_BASE_URL = wpBaseUrl;
-process.env.WP_ARTIFACTS_PATH = artifactsPath;
-process.env.STORAGE_STATE_PATH = path.join(
+process.env['WP_BASE_URL'] = wpBaseUrl;
+process.env['WP_ARTIFACTS_PATH'] = artifactsPath;
+process.env['STORAGE_STATE_PATH'] = path.join(
 	artifactsPath,
 	'storage-states',
 	'admin.json'
