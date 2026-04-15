@@ -315,7 +315,7 @@ const BrowserUploaderButton = ({
 		const mimeTypes = getAllowedMimeTypes(ALLOWED_MIME_TYPES_MAP);
 
 		// Validate file type.
-		if (!mimeTypes.length > 0 || !mimeTypes.includes(file.type)) {
+		if (mimeTypes.length === 0 || !mimeTypes.includes(file.type)) {
 			setNotice({
 				type: 'error',
 				message: __('Please select a valid image file.', 'onemedia'),

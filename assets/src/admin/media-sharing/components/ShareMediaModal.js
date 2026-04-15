@@ -4,6 +4,7 @@
  * WordPress dependencies
  */
 import { __, sprintf } from '@wordpress/i18n';
+import { useEffect } from '@wordpress/element';
 import {
 	Button,
 	Modal,
@@ -29,12 +30,15 @@ const ShareMediaModal = ({
 		brandSites.length > 0 && getSelectedSitesCount() === brandSites.length;
 
 	const brandSitesPresent = brandSites.length > 0;
-	if (!brandSitesPresent) {
-		setNotice({
-			type: 'warning',
-			message: __('No brand sites found.', 'onemedia'),
-		});
-	}
+
+	useEffect(() => {
+		if (!brandSitesPresent) {
+			setNotice({
+				type: 'warning',
+				message: __('No brand sites found.', 'onemedia'),
+			});
+		}
+	}, [brandSitesPresent, setNotice]);
 
 	return (
 		<Modal

@@ -45,7 +45,7 @@ export const apiFetch = async ({
 	params = {},
 }) => {
 	try {
-		let url = `${baseurl}/onemedia/v1/${endpoint}`;
+		let url = `${removeTrailingSlash(baseurl)}${ONEMEDIA_REST_API_BASE}/${endpoint}`;
 		// Add params to URL if provided.
 		if (params && Object.keys(params).length > 0) {
 			const searchParams = new URLSearchParams(params).toString();
@@ -66,7 +66,7 @@ export const apiFetch = async ({
 			body: body ? JSON.stringify(body) : undefined,
 		});
 		const responseData = await response.json();
-		if (!response.ok || !200 === response.status) {
+		if (!response.ok) {
 			let message =
 				responseData?.message ||
 				response?.message ||
@@ -131,7 +131,7 @@ export const fetchBrandSites = async (addNotice) => {
  */
 export const checkBrandSiteHealth = async (url, apiKey, addNotice) => {
 	const response = await apiFetch({
-		baseurl: removeTrailingSlash(url) + ONEMEDIA_REST_API_BASE,
+		baseurl: removeTrailingSlash(url) + '/wp-json',
 		endpoint: 'health-check',
 		method: 'GET',
 		nonce: '', // No nonce for cross-site requests.
