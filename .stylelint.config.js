@@ -10,7 +10,5 @@ module.exports = {
 		'**/*.php',
 		'**/*.svg',
 	],
-	rules: {
-		selector-class-pattern: null,
-	},
+	rules: {},
 };
