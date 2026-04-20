@@ -4,14 +4,15 @@ This guide provides detailed instructions for installing and configuring OneMedi
 
 ## System Requirements
 
-| Requirement  | Version |
-|:-------------|:--------|
-| WordPress    | \>= 6.8 |
-| PHP          | \>= 8.0 |
+| Requirement | Version |
+| :---------- | :------ |
+| WordPress   | \>= 6.8 |
+| PHP         | \>= 8.2 |
 
 ## Installation Overview
 
-OneMedia requires installation on **two types of sites**: 
+OneMedia requires installation on **two types of sites**:
+
 1. **Governing Site** (central dashboard)
 2. **Brand Sites** (sites where media is to be shared)
 

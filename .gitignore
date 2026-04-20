@@ -1,38 +1,50 @@
-# Vendor + dependency files
-node_modules/
-vendor/
-
-# Enviroment
-.env
-.wp-env.override.json
-
-# Local configs
-phpcs.xml
-phpunit.xml
-phpstan.neon
-
-# Log files
-*.log
-/tests/logs
-
-# Test output
-/tests/_output/*
-!/tests/_output/.gitkeep
-
-# OS files
+# macOS/IDE
 [Tt]humbs.db
 [Dd]esktop.ini
-*.DS_store
-.DS_store?
-
-# IDE files
-.vscode/
+*.DS_Store
+.DS_Store?
 .idea/
+.vscode/
 *.iml
 *.sublime-project
 *.sublime-workspace
 *.code-workspace
 
+# AI files
+.gemini/
+.claude/
+.codex
+AGENTS.md
+GEMINI.md
+CLAUDE.md
+
+# Log files
+*.log
+/tests/logs
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# Generated language files
+/languages/*
+!/languages/.gitkeep
+
+# Environment
+.env
+.wp-env.override.json
+.wp-env.test.override.json
+
+# Test output
+/tests/_output/*
+!/tests/_output/.gitkeep
+
+# Configs
+/phpcs.xml
+/phpunit.xml
+/phpstan.neon
+
 # Build
+*.tsbuildinfo
 build/
 onemedia.zip

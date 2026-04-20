@@ -2,12 +2,15 @@
 /**
  * Bootstrap the PHPUnit tests.
  *
- * @package OneMedia
+ * @package rtCamp\OneMedia\Tests
  *
  * phpcs:disable WordPressVIPMinimum.Files.IncludingFile.UsingVariable
+ * phpcs:disable WordPress.NamingConventions.PrefixAllGlobals
  */
 
-define( 'TESTS_REPO_ROOT_DIR', dirname( __DIR__ ) );
+declare( strict_types = 1 );
+
+define( 'TESTS_REPO_ROOT_DIR', dirname( __DIR__, 2 ) );
 
 // Load Composer dependencies if applicable.
 if ( file_exists( TESTS_REPO_ROOT_DIR . '/vendor/autoload.php' ) ) {
@@ -34,7 +37,8 @@ require_once $_test_root . '/includes/functions.php';
 tests_add_filter(
 	'muplugins_loaded',
 	static function (): void {
-		require_once dirname( __DIR__ ) . '/onemedia.php';
+		// Require ( to bypass require_once ).
+		require TESTS_REPO_ROOT_DIR . '/onemedia.php';
 	}
 );
 

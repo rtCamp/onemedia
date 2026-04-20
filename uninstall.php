@@ -1,23 +1,24 @@
 <?php
 /**
- * This will be executed when the plugin is uninstalled.
+ * This will be executed when the plugin is uninstalled via the WordPress admin.
  *
  * @package OneMedia
  */
 
-declare( strict_types=1 );
+declare( strict_types = 1 );
 
 namespace OneMedia;
 
-// If uninstall not called from WordPress, exit.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	exit;
-}
+// Only uninstall if called by WordPress.
+defined( 'WP_UNINSTALL_PLUGIN' ) || exit;
+
+// We use local constants so this plugin can be uninstalled even if the autoloader is corrupted or missing.
+const PLUGIN_PREFIX = 'onemedia_';
 
 /**
- * Multisite loop for uninstalling from all sites.
+ * Uninstalls the plugin. If multisite, uninstalls from all sites.
  */
-function multisite_uninstall(): void {
+function run_uninstaller(): void {
 	if ( ! is_multisite() ) {
 		uninstall();
 		return;
@@ -31,7 +32,7 @@ function multisite_uninstall(): void {
 	) ?: [];
 
 	foreach ( $site_ids as $site_id ) {
-		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.switch_to_blog_switch_to_blog
+		// phpcs:ignore WordPressVIPMinimum.Functions.RestrictedFunctions.switch_to_blog_switch_to_blog -- The state doesn't matter during uninstall.
 		if ( ! switch_to_blog( (int) $site_id ) ) {
 			continue;
 		}
@@ -118,21 +119,22 @@ function delete_plugin_data(): void {
 	}
 
 	$options = [
-		// Common site options.
-		'onemedia_site_type',
-		'onemedia_show_onboarding',
+		// Add more options as needed.
+		PLUGIN_PREFIX . 'version', // Set by Main::activate().
+		PLUGIN_PREFIX . 'show_onboarding',
 
 		// Governing site options.
-		'onemedia_shared_sites',
+		PLUGIN_PREFIX . 'site_type',
+		PLUGIN_PREFIX . 'shared_sites',
 
 		// Brand site options.
-		'onemedia_parent_site_url',
-		'onemedia_consumer_api_key',
+		PLUGIN_PREFIX . 'parent_site_url',
+		PLUGIN_PREFIX . 'consumer_api_key',
 
-		// Plugin specific options.
-		'onemedia_media_type_children',
-		'onemedia_brand_sites_synced_media',
-		'onemedia_attachment_key_map',
+		// Plugin specific options
+		PLUGIN_PREFIX . 'media_type_children',
+		PLUGIN_PREFIX . 'brand_sites_synced_media',
+		PLUGIN_PREFIX . 'attachment_key_map',
 	];
 
 	foreach ( $options as $option ) {
@@ -141,4 +143,4 @@ function delete_plugin_data(): void {
 }
 
 // Run the uninstaller.
-multisite_uninstall();
+run_uninstaller();
