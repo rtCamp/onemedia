@@ -21,8 +21,7 @@ function SyncMediaFilter() {
 		return;
 	}
 
-	const ONEMEDIA_MEDIA_UPLOAD =
-		typeof OneMediaMediaUpload !== 'undefined' ? OneMediaMediaUpload : '';
+	const ONEMEDIA_MEDIA_UPLOAD = window.OneMediaMediaUpload || '';
 
 	if ( ! ONEMEDIA_MEDIA_UPLOAD ) {
 		return;

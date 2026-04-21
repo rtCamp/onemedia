@@ -26,9 +26,9 @@ interface NoticeState {
 	message: string;
 }
 
-// WordPress provides snake_case keys here. Using them intentionally.
-// eslint-disable-next-line camelcase
-const { nonce, setup_url, site_type } = window.OneMediaOnboarding;
+const nonce = window.OneMediaOnboarding.nonce;
+const setupUrl = window.OneMediaOnboarding[ 'setup_url' ];
+const initialSiteType = window.OneMediaOnboarding[ 'site_type' ];
 
 /**
  * Create NONCE middleware for apiFetch
@@ -65,7 +65,7 @@ const SiteTypeSelector = ( {
 
 const OnboardingScreen = () => {
 	const [ siteType, setSiteType ] = useState< SiteType | '' >(
-		site_type || ''
+		initialSiteType || ''
 	);
 	const [ notice, setNotice ] = useState< NoticeState | null >( null );
 	const [ isSaving, setIsSaving ] = useState( false );
@@ -105,8 +105,8 @@ const OnboardingScreen = () => {
 				setSiteType( settings.onemedia_site_type );
 
 				// Redirect user to setup page.
-				if ( setup_url ) {
-					window.location.href = setup_url;
+				if ( setupUrl ) {
+					window.location.href = setupUrl;
 				}
 			} );
 		} catch {

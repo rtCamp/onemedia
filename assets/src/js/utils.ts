@@ -14,9 +14,9 @@ declare global {
 				queue: unknown;
 			};
 			media: {
-				attachment(
+				attachment: (
 					id: number
-				): { get( key: string ): unknown } | undefined;
+				) => { get: ( key: string ) => unknown } | undefined;
 			};
 		};
 	}
@@ -251,14 +251,14 @@ const showSnackbarNotice = ( detail: NoticeType ): void => {
  *
  * @param {WPMediaFrame} frame        - The WordPress media frame to restrict.
  * @param {string}       allowedTypes - Comma-separated list of allowed file extensions.
- * @param {boolean}      is_sync      - Whether the upload is for sync (default false).
+ * @param {boolean}      isSync       - Whether the upload is for sync (default false).
  *
  * @return {void}
  */
 const restrictMediaFrameUploadTypes = (
 	frame: WPMediaFrame,
 	allowedTypes: string,
-	is_sync: boolean = false
+	isSync: boolean = false
 ) => {
 	/**
 	 * Using mime_type will restrict the upload types in media modal,
@@ -282,7 +282,7 @@ const restrictMediaFrameUploadTypes = (
 		// Set is_onemedia_sync param
 		uploader.setOption( 'multipart_params', {
 			...existingParams,
-			is_onemedia_sync: is_sync,
+			is_onemedia_sync: isSync,
 		} );
 	} );
 
