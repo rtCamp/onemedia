@@ -56,12 +56,15 @@ abstract class Abstract_REST_Controller extends \WP_REST_Controller implements R
 		$request_origin = ! empty( $request_origin ) ? esc_url_raw( wp_unslash( $request_origin ) ) : '';
 		$parsed_origin  = wp_parse_url( $request_origin );
 		$request_url    = ! empty( $parsed_origin['scheme'] ) && ! empty( $parsed_origin['host'] ) ? sprintf(
-			'%s://%s',
+			'%s://%s%s',
 			$parsed_origin['scheme'],
-			$parsed_origin['host']
+			$parsed_origin['host'],
+			isset( $parsed_origin['port'] ) ? ':' . $parsed_origin['port'] : ''
 		) : '';
 
-		if ( empty( $request_url ) || $this->is_url_from_host( get_site_url(), $parsed_origin['host'] ) ) {
+		$origin_port = $parsed_origin['port'] ?? 80;
+
+		if ( empty( $request_url ) || $this->is_url_from_host( get_site_url(), $parsed_origin['host'], $origin_port ) ) {
 			return current_user_can( 'manage_options' );
 		}
 
@@ -85,7 +88,7 @@ abstract class Abstract_REST_Controller extends \WP_REST_Controller implements R
 		// If it's not a healthcheck, compare the origins.
 		$governing_site_url = Settings::get_parent_site_url();
 		if ( '/' . self::NAMESPACE . '/health-check' !== $request->get_route() ) {
-			return ! empty( $governing_site_url ) ? $this->is_url_from_host( $governing_site_url, $parsed_origin['host'] ) : false;
+			return ! empty( $governing_site_url ) ? $this->is_url_from_host( $governing_site_url, $parsed_origin['host'], $origin_port ) : false;
 		}
 
 		// For health-checks, if no governing site is set, we set it now.
