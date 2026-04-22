@@ -24,7 +24,7 @@ final class Utils {
 	 * This is a list of potentially supported mime types, any unsupported mime types will
 	 * be removed during usage, on that particular server.
 	 *
-	 * @var array
+	 * @var array<string, string>
 	 */
 	private const ALLOWED_MIME_TYPES = [
 		'jpg|jpeg|jpe' => 'image/jpeg',
