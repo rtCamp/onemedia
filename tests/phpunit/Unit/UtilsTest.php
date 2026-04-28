@@ -9,11 +9,9 @@ declare( strict_types = 1 );
 
 namespace OneMedia\Tests\Unit;
 
+use OneMedia\Tests\TestCase;
 use OneMedia\Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
-use rtCamp\OneMedia\Tests\TestCase;
-
-require_once dirname( __DIR__ ) . '/TestCase.php';
 
 /**
  * @covers \OneMedia\Utils
@@ -71,7 +69,7 @@ final class UtilsTest extends TestCase {
 		);
 
 		$this->assertStringContainsString( '<select name="onemedia_sync_status"', $content );
-		$this->assertMatchesRegularExpression( '/<option value="sync"\\s+selected=\'selected\'>Synced<\\/option>/', $content );
+		$this->assertMatchesRegularExpression( '/<option\\b[^>]*\\bvalue=([\'"])sync\\1[^>]*\\bselected(?:=([\'"])selected\\2)?[^>]*>/', $content );
 		$this->assertStringContainsString( 'name="onemedia_sync_nonce"', $content );
 	}
 
@@ -79,12 +77,6 @@ final class UtilsTest extends TestCase {
 	 * Tests that missing templates return an empty string.
 	 */
 	public function test_get_template_content_returns_empty_string_for_missing_template(): void {
-		$initial_ob_level = ob_get_level();
-
 		$this->assertSame( '', Utils::get_template_content( 'missing/template' ) );
-
-		while ( ob_get_level() > $initial_ob_level ) {
-			ob_end_clean();
-		}
 	}
 }

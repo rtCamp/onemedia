@@ -7,7 +7,7 @@
 
 declare( strict_types = 1 );
 
-namespace rtCamp\OneMedia\Tests;
+namespace OneMedia\Tests;
 
 use WP_UnitTestCase;
 

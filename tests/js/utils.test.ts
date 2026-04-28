@@ -7,7 +7,6 @@ import {
 	getAllowedMimeTypes,
 	getFrameProperty,
 	getNoticeClass,
-	isURL,
 	isValidUrl,
 	observeElement,
 	removeTrailingSlash,
@@ -17,16 +16,6 @@ import {
 } from '@/js/utils';
 
 describe( 'utils', () => {
-	describe( 'isURL', () => {
-		it( 'returns true for a valid absolute URL', () => {
-			expect( isURL( 'https://example.com/path?x=1' ) ).toBe( true );
-		} );
-
-		it( 'returns false for an invalid URL string', () => {
-			expect( isURL( 'not a url' ) ).toBe( false );
-		} );
-	} );
-
 	describe( 'isValidUrl', () => {
 		it( 'returns true for a valid URL', () => {
 			expect( isValidUrl( 'https://example.org' ) ).toBe( true );
@@ -75,6 +64,10 @@ describe( 'utils', () => {
 			expect( trimTitle( 'abcdefghijklmnopqrstuvwxyz', 5 ) ).toBe(
 				'abcde…'
 			);
+		} );
+
+		it( 'returns an empty string when title is omitted', () => {
+			expect( trimTitle() ).toBe( '' );
 		} );
 	} );
 

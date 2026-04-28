@@ -10,10 +10,8 @@ declare( strict_types = 1 );
 namespace OneMedia\Tests\Unit;
 
 use OneMedia\Encryptor;
+use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
-use rtCamp\OneMedia\Tests\TestCase;
-
-require_once dirname( __DIR__ ) . '/TestCase.php';
 
 /**
  * @covers \OneMedia\Encryptor

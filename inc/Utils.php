@@ -83,6 +83,7 @@ final class Utils {
 		}
 
 		if ( '' === $located_template ) {
+			ob_end_clean();
 			return '';
 		}
 
