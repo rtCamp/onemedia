@@ -5,6 +5,7 @@
 		"noEmit": true,
 		"rootDir": ".",
 		"baseUrl": ".",
+		"types": [ "jest", "node", "@testing-library/jest-dom" ],
 		"outDir": "./build",
 		"paths": {
 			"@/*": [ "./assets/src/*" ]

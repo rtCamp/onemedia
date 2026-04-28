@@ -48,22 +48,6 @@ type WPMediaFrame = {
 };
 
 /**
- * Helper function to validate if a string is a well-formed URL.
- *
- * @param {string} str - The string to validate as a URL.
- *
- * @return {boolean} True if the string is a valid URL, false otherwise.
- */
-const isURL = ( str: string ): boolean => {
-	try {
-		new URL( str );
-		return true;
-	} catch {
-		return false;
-	}
-};
-
-/**
  * Validates if a given string is a valid URL.
  *
  * @param {string} url - The URL string to validate.
@@ -72,8 +56,8 @@ const isURL = ( str: string ): boolean => {
  */
 const isValidUrl = ( url: string ): boolean => {
 	try {
-		const parsedUrl = new URL( url );
-		return isURL( parsedUrl.href );
+		new URL( url );
+		return true;
 	} catch {
 		return false;
 	}
@@ -111,10 +95,7 @@ const getNoticeClass = ( type: NoticeType[ 'type' ] ): string => {
  * @param {number} maxLength - The maximum length of the title (default is 25).
  * @return {string} The trimmed title.
  */
-const trimTitle = ( title: string, maxLength: number = 25 ): string => {
-	if ( typeof title !== 'string' ) {
-		return '';
-	}
+const trimTitle = ( title: string = '', maxLength: number = 25 ): string => {
 	return title.length > maxLength
 		? title.substring( 0, maxLength ) + '…'
 		: title;
@@ -226,12 +207,8 @@ function getFrameProperty< T = object >( propertyPath: string ): T | undefined {
  * @param {NoticeType} detail - The detail object containing type and message.
  */
 const showSnackbarNotice = ( detail: NoticeType ): void => {
-	if ( ! detail || typeof detail !== 'object' ) {
-		return;
-	}
-
-	const type = detail?.type || 'error';
-	const message = detail?.message || '';
+	const type = detail.type || 'error';
+	const message = detail.message || '';
 
 	if ( ! message ) {
 		return;
@@ -316,7 +293,6 @@ function getAllowedMimeTypeExtensions( mimeMap: Object ): string[] {
 }
 
 export {
-	isURL,
 	isValidUrl,
 	removeTrailingSlash,
 	getNoticeClass,
