@@ -168,8 +168,9 @@ class Admin implements Registrable {
 		}
 
 		// Nonce verification for filter form.
-		$nonce = filter_input( INPUT_GET, 'onemedia_sync_nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$nonce = isset( $nonce ) ? sanitize_text_field( wp_unslash( $nonce ) ) : '';
+		$nonce = isset( $_GET['onemedia_sync_nonce'] )
+			? sanitize_text_field( wp_unslash( $_GET['onemedia_sync_nonce'] ) )
+			: '';
 
 		if ( ! $nonce ) {
 			// This means this is the first load of the page, so we don't have onemedia_sync_filter nonce yet.
@@ -198,22 +199,26 @@ class Admin implements Registrable {
 	 */
 	public function filter_sync_attachments( \WP_Query $query ): void {
 		global $pagenow;
-		$onemedia_sync_status = filter_input( INPUT_GET, Attachment::SYNC_STATUS_POSTMETA_KEY, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
+		$onemedia_sync_status = isset( $_GET[ Attachment::SYNC_STATUS_POSTMETA_KEY ] )
+			? sanitize_text_field( wp_unslash( $_GET[ Attachment::SYNC_STATUS_POSTMETA_KEY ] ) )
+			: '';
 
 		if ( 'upload.php' !== $pagenow || empty( $onemedia_sync_status ) ) {
 			return;
 		}
 
 		// Nonce verification for filter query.
-		$nonce = filter_input( INPUT_GET, 'onemedia_sync_nonce', FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$nonce = isset( $nonce ) ? sanitize_text_field( wp_unslash( $nonce ) ) : '';
+		$nonce = isset( $_GET['onemedia_sync_nonce'] )
+			? sanitize_text_field( wp_unslash( $_GET['onemedia_sync_nonce'] ) )
+			: '';
 
 		if ( ! $nonce || ! wp_verify_nonce( $nonce, 'onemedia_sync_filter' ) ) {
 			return;
 		}
 
-		$sync_status = filter_input( INPUT_GET, Attachment::SYNC_STATUS_POSTMETA_KEY, FILTER_SANITIZE_FULL_SPECIAL_CHARS );
-		$sync_status = isset( $sync_status ) ? sanitize_text_field( wp_unslash( $sync_status ) ) : '';
+		$sync_status = isset( $_GET[ Attachment::SYNC_STATUS_POSTMETA_KEY ] )
+			? sanitize_text_field( wp_unslash( $_GET[ Attachment::SYNC_STATUS_POSTMETA_KEY ] ) )
+			: '';
 
 		if ( Attachment::SYNC_STATUS_SYNC === $sync_status ) {
 			$query->set(
