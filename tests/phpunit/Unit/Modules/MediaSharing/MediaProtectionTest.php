@@ -16,7 +16,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Modules\MediaSharing\MediaProtection
+ * Test class.
  */
 #[CoversClass( MediaProtection::class )]
 final class MediaProtectionTest extends TestCase {

@@ -10,6 +10,7 @@ declare( strict_types = 1 );
 namespace OneMedia\Tests\Unit\Modules\Rest;
 
 use OneMedia\Modules\MediaSharing\Attachment;
+use OneMedia\Modules\Rest\Abstract_REST_Controller;
 use OneMedia\Modules\Rest\Media_Sharing_Controller;
 use OneMedia\Modules\Settings\Settings;
 use OneMedia\Tests\TestCase;
@@ -17,10 +18,10 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WP_REST_Request;
 
 /**
- * @covers \OneMedia\Modules\Rest\Media_Sharing_Controller
- * @covers \OneMedia\Modules\Rest\Abstract_REST_Controller
+ * Class MediaSharingControllerTest
  */
 #[CoversClass( Media_Sharing_Controller::class )]
+#[CoversClass( Abstract_REST_Controller::class )]
 final class MediaSharingControllerTest extends TestCase {
 	/**
 	 * {@inheritDoc}
@@ -45,6 +46,13 @@ final class MediaSharingControllerTest extends TestCase {
 		$method = new \ReflectionMethod( $target, $method_name );
 
 		return $method->invokeArgs( is_object( $target ) ? $target : null, $args );
+	}
+
+	/**
+	 * Tests no errors on class instantiation.
+	 */
+	public function test_class_instantiation(): void {
+		$this->assertInstanceOf( Media_Sharing_Controller::class, new Media_Sharing_Controller() );
 	}
 
 	/**

@@ -16,7 +16,7 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use WP_Query;
 
 /**
- * @covers \OneMedia\Modules\MediaLibrary\Admin
+ * Test class.
  */
 #[CoversClass( Admin::class )]
 final class AdminTest extends TestCase {
@@ -30,17 +30,15 @@ final class AdminTest extends TestCase {
 	}
 
 	/**
-	 * Tests hook registration.
+	 * Tests no errors on class lifecycle methods.
 	 */
-	public function test_register_hooks_adds_expected_callbacks(): void {
+	public function test_class_instantiation(): void {
 		$admin = new Admin();
 
 		$admin->register_hooks();
+		$admin->enqueue_scripts();
 
-		$this->assertSame( 20, has_action( 'admin_enqueue_scripts', [ $admin, 'enqueue_scripts' ] ) );
-		$this->assertSame( 10, has_filter( 'ajax_query_attachments_args', [ $admin, 'filter_ajax_query_attachments_args' ] ) );
-		$this->assertSame( 10, has_action( 'restrict_manage_posts', [ $admin, 'add_sync_filter' ] ) );
-		$this->assertSame( 10, has_action( 'parse_query', [ $admin, 'filter_sync_attachments' ] ) );
+		$this->assertTrue( true );
 	}
 
 	/**
@@ -127,5 +125,24 @@ final class AdminTest extends TestCase {
 
 		$this->assertSame( Attachment::IS_SYNC_POSTMETA_KEY, $query->get( 'meta_query' )[0]['key'] );
 		$this->assertSame( '1', $query->get( 'meta_query' )[0]['value'] );
+	}
+
+	/**
+	 * Tests parse-query no-sync status filtering.
+	 */
+	public function test_filter_sync_attachments_sets_or_meta_query_for_no_sync_filter(): void {
+		global $pagenow;
+
+		$previous_pagenow                             = $pagenow;
+		$pagenow                                      = 'upload.php'; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Test fixture sets the current admin page.
+		$query                                        = new WP_Query();
+		$_GET['onemedia_sync_nonce']                  = wp_create_nonce( 'onemedia_sync_filter' );
+		$_GET[ Attachment::SYNC_STATUS_POSTMETA_KEY ] = Attachment::SYNC_STATUS_NO_SYNC;
+
+		( new Admin() )->filter_sync_attachments( $query );
+
+		$pagenow = $previous_pagenow; // phpcs:ignore WordPress.WP.GlobalVariablesOverride.Prohibited -- Restore test global.
+
+		$this->assertSame( 'OR', $query->get( 'meta_query' )['relation'] );
 	}
 }

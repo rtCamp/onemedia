@@ -16,7 +16,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Modules\MediaLibrary\ConsumerAdmin
+ * Test class.
  */
 #[CoversClass( ConsumerAdmin::class )]
 final class ConsumerAdminTest extends TestCase {

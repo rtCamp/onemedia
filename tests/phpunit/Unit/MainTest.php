@@ -14,15 +14,15 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Main
+ * Test class.
  */
 #[CoversClass( Main::class )]
 final class MainTest extends TestCase {
 	/**
 	 * Reset singleton instance before each test.
 	 */
-	public function set_up(): void {
-		parent::set_up();
+	public function setUp(): void {
+		parent::setUp();
 
 		$property = new \ReflectionProperty( Main::class, 'instance' );
 		$property->setValue( null, null );

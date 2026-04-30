@@ -14,7 +14,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Autoloader
+ * Test class.
  */
 #[CoversClass( Autoloader::class )]
 final class AutoloaderTest extends TestCase {
@@ -49,7 +49,10 @@ final class AutoloaderTest extends TestCase {
 		$this->assertNotFalse( has_action( 'admin_notices' ) );
 		$this->assertNotFalse( has_action( 'network_admin_notices' ) );
 
-		$this->expectOutputRegex( '/Composer autoloader was not found/' );
+		$this->expectOutputRegex( '/OneMedia: The Composer autoloader was not found/' );
 		do_action( 'admin_notices' );
+
+		$this->expectOutputRegex( '/OneMedia: The Composer autoloader was not found/' );
+		do_action( 'network_admin_notices' );
 	}
 }

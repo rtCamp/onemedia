@@ -15,7 +15,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Modules\MediaSharing\UserInterface
+ * Test class.
  */
 #[CoversClass( UserInterface::class )]
 final class UserInterfaceTest extends TestCase {

@@ -28,7 +28,7 @@ final class SingletonFixture {
 }
 
 /**
- * @covers \OneMedia\Contracts\Traits\Singleton
+ * Test class.
  */
 #[CoversTrait( Singleton::class )]
 final class SingletonTest extends TestCase {

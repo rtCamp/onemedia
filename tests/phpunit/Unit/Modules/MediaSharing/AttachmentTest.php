@@ -15,7 +15,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Modules\MediaSharing\Attachment
+ * Test class.
  */
 #[CoversClass( Attachment::class )]
 final class AttachmentTest extends TestCase {

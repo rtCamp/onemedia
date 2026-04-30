@@ -14,7 +14,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Encryptor
+ * Test class.
  */
 #[CoversClass( Encryptor::class )]
 final class EncryptorTest extends TestCase {

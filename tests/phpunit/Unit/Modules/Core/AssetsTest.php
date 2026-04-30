@@ -15,7 +15,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Modules\Core\Assets
+ * Test class.
  */
 #[CoversClass( Assets::class )]
 final class AssetsTest extends TestCase {
@@ -55,6 +55,8 @@ final class AssetsTest extends TestCase {
 		$assets = new Assets();
 
 		$assets->register_hooks();
+		$assets->register_assets();
+		$assets->enqueue_scripts();
 
 		$this->assertTrue( true );
 	}
@@ -63,10 +65,12 @@ final class AssetsTest extends TestCase {
 	 * Tests registering one script and one style from existing assets.
 	 */
 	public function test_registration_helpers_register_existing_assets(): void {
-		$assets = new Assets();
+		$assets        = new Assets();
+		$script_method = new \ReflectionMethod( Assets::class, 'register_script' );
+		$style_method  = new \ReflectionMethod( Assets::class, 'register_style' );
 
-		$this->assertTrue( $assets->register_script( Assets::SETTINGS_SCRIPT_HANDLE, 'settings' ) );
-		$this->assertTrue( $assets->register_style( Assets::MAIN_STYLE_HANDLE, 'main' ) );
+		$this->assertTrue( $script_method->invoke( $assets, Assets::SETTINGS_SCRIPT_HANDLE, 'settings' ) );
+		$this->assertTrue( $style_method->invoke( $assets, Assets::MAIN_STYLE_HANDLE, 'main' ) );
 		$this->assertTrue( wp_script_is( Assets::SETTINGS_SCRIPT_HANDLE, 'registered' ) );
 		$this->assertTrue( wp_style_is( Assets::MAIN_STYLE_HANDLE, 'registered' ) );
 	}
@@ -90,8 +94,10 @@ final class AssetsTest extends TestCase {
 		$assets   = new Assets();
 		$dir_prop = new \ReflectionProperty( Assets::class, 'plugin_dir' );
 		$dir_prop->setValue( $assets, sys_get_temp_dir() . '/onemedia-missing-assets/' );
+		$script_method = new \ReflectionMethod( Assets::class, 'register_script' );
+		$style_method  = new \ReflectionMethod( Assets::class, 'register_style' );
 
-		$this->assertFalse( $assets->register_script( 'missing-script', 'missing' ) );
-		$this->assertFalse( $assets->register_style( 'missing-style', 'missing' ) );
+		$this->assertFalse( $script_method->invoke( $assets, 'missing-script', 'missing' ) );
+		$this->assertFalse( $style_method->invoke( $assets, 'missing-style', 'missing' ) );
 	}
 }

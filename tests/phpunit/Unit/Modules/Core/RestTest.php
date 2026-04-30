@@ -14,7 +14,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Modules\Core\Rest
+ * Test class.
  */
 #[CoversClass( Rest::class )]
 final class RestTest extends TestCase {

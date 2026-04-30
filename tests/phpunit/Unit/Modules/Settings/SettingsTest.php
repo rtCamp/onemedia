@@ -15,7 +15,7 @@ use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Modules\Settings\Settings
+ * Test class.
  */
 #[CoversClass( Settings::class )]
 final class SettingsTest extends TestCase {
