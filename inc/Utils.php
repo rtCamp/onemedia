@@ -97,7 +97,7 @@ final class Utils {
 	/**
 	 * Read a filtered input value.
 	 *
-	 * @param int                   $type     Input type.
+	 * @param 0|1|2|4|5             $type     Input type.
 	 * @param string                $var_name Input name.
 	 * @param int                   $filter   Filter id.
 	 * @param array<int, mixed>|int $options  Filter options.
@@ -105,6 +105,10 @@ final class Utils {
 	 * @codeCoverageIgnore
 	 */
 	public static function get_filtered_input( int $type, string $var_name, int $filter = FILTER_DEFAULT, array|int $options = 0 ): mixed {
+		if ( ! in_array( $type, [ \INPUT_GET, \INPUT_POST, \INPUT_COOKIE, \INPUT_ENV, \INPUT_SERVER ], true ) ) {
+			return null;
+		}
+
 		return filter_input( $type, $var_name, $filter, $options );
 	}
 }
