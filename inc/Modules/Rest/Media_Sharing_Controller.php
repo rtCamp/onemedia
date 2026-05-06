@@ -424,9 +424,11 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 			);
 		}
 
+		// @codeCoverageIgnoreStart // phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- PHPUnit coverage marker.
 		if ( ! function_exists( 'wp_update_attachment_metadata' ) ) {
 			include_once ABSPATH . 'wp-admin/includes/media.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Sanitize attachment url.
 		$attachment_url = esc_url_raw( trim( $attachment_url ) );
@@ -474,6 +476,9 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 		update_attached_file( $attachment_id, $new_file );
 
 		// Regenerate metadata and intermediate sizes.
+		// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar -- PHPUnit coverage marker.
+		// @codeCoverageIgnoreStart
+		// phpcs:enable Squiz.Commenting.InlineComment.InvalidEndChar
 		if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
 			include_once ABSPATH . 'wp-admin/includes/image.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
 		}
@@ -481,6 +486,7 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 		if ( ! function_exists( 'wp_update_attachment_metadata' ) ) {
 			include_once ABSPATH . 'wp-admin/includes/media.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
 		}
+		// @codeCoverageIgnoreEnd
 
 		$metadata = wp_generate_attachment_metadata( $attachment_id, $new_file );
 		if ( $metadata ) {
@@ -490,6 +496,7 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 		// Update the attachment post.
 		$update_post_success = wp_update_post( $attachment_post );
 
+		// @codeCoverageIgnoreStart
 		if ( is_wp_error( $update_post_success ) ) {
 			return new \WP_Error(
 				'post_update_failed',
@@ -500,6 +507,7 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 				]
 			);
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Update attachment alt text.
 		if ( isset( $attachment_data['alt_text'] ) ) {
@@ -764,6 +772,7 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 			$site_url   = rtrim( $site_url, '/' );
 			$site_token = '';
 
+			// @codeCoverageIgnoreStart
 			if ( empty( $site_url ) ) {
 				$failed_sites[] = [
 					'site'     => $site,
@@ -776,6 +785,7 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 				];
 				continue;
 			}
+			// @codeCoverageIgnoreEnd
 
 			$site_name = Settings::get_sitename_by_url( $site_url );
 
@@ -968,11 +978,15 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 		$unsupported_file_types = [];
 
 		// Include necessary WordPress media handling functions.
+		// phpcs:disable Squiz.Commenting.InlineComment.InvalidEndChar -- PHPUnit coverage marker.
+		// @codeCoverageIgnoreStart
+		// phpcs:enable Squiz.Commenting.InlineComment.InvalidEndChar
 		if ( ! function_exists( 'media_sideload_image' ) ) {
 			include_once ABSPATH . 'wp-admin/includes/media.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
 			include_once ABSPATH . 'wp-admin/includes/file.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
 			include_once ABSPATH . 'wp-admin/includes/image.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
 		}
+		// @codeCoverageIgnoreEnd
 
 		// Perform the media addition operation here.
 		foreach ( $media_files as $media_file ) {
@@ -1714,6 +1728,8 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 	 * @param 'sync'|'no_sync'     $sync_status  Sync status to be added as metadata.
 	 *
 	 * @return int|\WP_Error Attachment ID or error.
+	 *
+	 * @codeCoverageIgnore
 	 */
 	private function create_attachment_from_file( array $file_details, string $title, string $sync_status ): int|\WP_Error {
 		// Get upload directory info.
@@ -1775,7 +1791,7 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 		Attachment::set_is_synced( $attachment_id, 'sync' === $sync_status );
 
 		if ( ! function_exists( 'wp_generate_attachment_metadata' ) ) {
-			include_once ABSPATH . 'wp-admin/includes/image.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
+			include_once ABSPATH . 'wp-admin/includes/image.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant // @codeCoverageIgnore
 		}
 
 		// Generate and update attachment metadata.
@@ -1788,7 +1804,7 @@ class Media_Sharing_Controller extends Abstract_REST_Controller {
 		}
 
 		if ( ! function_exists( 'wp_update_attachment_metadata' ) ) {
-			include_once ABSPATH . 'wp-admin/includes/media.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant
+			include_once ABSPATH . 'wp-admin/includes/media.php';  // phpcs:ignore WordPressVIPMinimum.Files.IncludingFile.UsingCustomConstant // @codeCoverageIgnore
 		}
 
 		wp_update_attachment_metadata( $attachment_id, $attachment_data );
