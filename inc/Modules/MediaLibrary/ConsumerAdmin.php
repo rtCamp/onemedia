@@ -219,7 +219,7 @@ class ConsumerAdmin implements Registrable {
 	/**
 	 * Read a filtered input value.
 	 *
-	 * @param int                   $type     Input type.
+	 * @param 0|1|2|4|5             $type     Input type.
 	 * @param string                $var_name Input name.
 	 * @param int                   $filter   Filter id.
 	 * @param array<int, mixed>|int $options  Filter options.

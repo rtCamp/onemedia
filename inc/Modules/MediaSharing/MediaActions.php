@@ -13,6 +13,8 @@ use OneMedia\Contracts\Interfaces\Registrable;
 use OneMedia\Modules\Rest\Abstract_REST_Controller;
 use OneMedia\Modules\Settings\Settings;
 use OneMedia\Utils;
+use WP_Error; // phpcs:ignore SlevomatCodingStandard.Namespaces.UnusedUses.UnusedUse -- Required for editor resolution of \WP_Error annotations.
+use WP_Post;
 
 /**
  * Class Admin
@@ -64,7 +66,7 @@ class MediaActions implements Registrable {
 	 *
 	 * @return array<string, mixed> Modified form fields.
 	 */
-	public function add_replace_media_button( array $form_fields, \WP_Post $post ): array {
+	public function add_replace_media_button( array $form_fields, WP_Post $post ): array {
 		if ( Settings::is_consumer_site() ) {
 			// Don't show replace media button on brand sites.
 			return $form_fields;
@@ -435,7 +437,7 @@ class MediaActions implements Registrable {
 	/**
 	 * Read a filtered input value.
 	 *
-	 * @param int                   $type     Input type.
+	 * @param 0|1|2|4|5             $type     Input type.
 	 * @param string                $var_name Input name.
 	 * @param int                   $filter   Filter id.
 	 * @param array<int, mixed>|int $options  Filter options.
