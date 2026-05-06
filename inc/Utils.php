@@ -93,4 +93,18 @@ final class Utils {
 
 		return ob_get_clean() ?: '';
 	}
+
+	/**
+	 * Read a filtered input value.
+	 *
+	 * @param int                   $type     Input type.
+	 * @param string                $var_name Input name.
+	 * @param int                   $filter   Filter id.
+	 * @param array<int, mixed>|int $options  Filter options.
+	 *
+	 * @codeCoverageIgnore
+	 */
+	public static function get_filtered_input( int $type, string $var_name, int $filter = FILTER_DEFAULT, array|int $options = 0 ): mixed {
+		return filter_input( $type, $var_name, $filter, $options );
+	}
 }

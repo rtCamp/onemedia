@@ -20,14 +20,26 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( Settings::class )]
 final class SettingsTest extends TestCase {
 	/**
+	 * OneMedia settings touched by these tests.
+	 *
+	 * @var string[]
+	 */
+	private const ONEMEDIA_SETTING_KEYS = [
+		Settings::OPTION_SITE_TYPE,
+		Settings::OPTION_CONSUMER_API_KEY,
+		Settings::OPTION_CONSUMER_PARENT_SITE_URL,
+		Settings::OPTION_GOVERNING_SHARED_SITES,
+		Settings::BRAND_SITES_SYNCED_MEDIA,
+	];
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected function tearDown(): void {
-		delete_option( Settings::OPTION_SITE_TYPE );
-		delete_option( Settings::OPTION_CONSUMER_API_KEY );
-		delete_option( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
-		delete_option( Settings::OPTION_GOVERNING_SHARED_SITES );
-		delete_option( Settings::BRAND_SITES_SYNCED_MEDIA );
+		foreach ( self::ONEMEDIA_SETTING_KEYS as $setting_key ) {
+			unregister_setting( Settings::SETTING_GROUP, $setting_key );
+			delete_option( $setting_key );
+		}
 
 		parent::tearDown();
 	}
@@ -49,6 +61,10 @@ final class SettingsTest extends TestCase {
 	 * Tests setting registration for both site modes.
 	 */
 	public function test_register_settings_registers_mode_specific_options(): void {
+		foreach ( self::ONEMEDIA_SETTING_KEYS as $setting_key ) {
+			unregister_setting( Settings::SETTING_GROUP, $setting_key );
+		}
+
 		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER, false );
 
 		( new Settings() )->register_settings();

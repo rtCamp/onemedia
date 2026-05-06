@@ -9,6 +9,8 @@ declare( strict_types = 1 );
 
 namespace OneMedia\Tests\Unit\Modules\MediaSharing;
 
+require_once dirname( __DIR__, 3 ) . '/includes/media-protection-function-shims.php';
+
 use OneMedia\Modules\MediaSharing\Attachment;
 use OneMedia\Modules\MediaSharing\MediaProtection;
 use OneMedia\Modules\Settings\Settings;
@@ -26,6 +28,7 @@ final class MediaProtectionTest extends TestCase {
 	protected function tearDown(): void {
 		delete_option( Settings::OPTION_SITE_TYPE );
 		delete_transient( 'onemedia_delete_notice' );
+		unset( $GLOBALS['onemedia_media_protection_wp_doing_ajax_callback'], $_POST['_wpnonce'], $_POST['is_onemedia_sync'], $_REQUEST['action'] );
 		wp_set_current_user( 0 );
 
 		parent::tearDown();
@@ -59,6 +62,60 @@ final class MediaProtectionTest extends TestCase {
 		( new MediaProtection() )->add_term_to_attachment( $attachment_id );
 
 		$this->assertSame( '', get_post_meta( $attachment_id, Attachment::IS_SYNC_POSTMETA_KEY, true ) );
+	}
+
+	/**
+	 * Tests AJAX uploads are ignored when the nonce is missing or invalid.
+	 */
+	public function test_add_term_to_attachment_ignores_invalid_ajax_nonce(): void {
+		$attachment_id = self::factory()->attachment->create();
+		$GLOBALS['onemedia_media_protection_wp_doing_ajax_callback'] = static fn (): bool => true;
+		$_REQUEST['action'] = 'upload-attachment';
+
+		( new MediaProtection() )->add_term_to_attachment( $attachment_id );
+
+		$this->assertSame( '', get_post_meta( $attachment_id, Attachment::IS_SYNC_POSTMETA_KEY, true ) );
+
+		$_POST['_wpnonce'] = 'invalid';
+
+		( new MediaProtection() )->add_term_to_attachment( $attachment_id );
+
+		$this->assertSame( '', get_post_meta( $attachment_id, Attachment::IS_SYNC_POSTMETA_KEY, true ) );
+	}
+
+	/**
+	 * Tests AJAX uploads are ignored when they are not attachment uploads.
+	 */
+	public function test_add_term_to_attachment_ignores_non_upload_attachment_actions(): void {
+		$attachment_id = self::factory()->attachment->create();
+		$GLOBALS['onemedia_media_protection_wp_doing_ajax_callback'] = static fn (): bool => true;
+		$_POST['_wpnonce']  = wp_create_nonce( 'media-form' );
+		$_REQUEST['action'] = 'save-attachment';
+
+		( new MediaProtection() )->add_term_to_attachment( $attachment_id );
+
+		$this->assertSame( '', get_post_meta( $attachment_id, Attachment::IS_SYNC_POSTMETA_KEY, true ) );
+	}
+
+	/**
+	 * Tests AJAX uploads persist the sync flag from the request payload.
+	 */
+	public function test_add_term_to_attachment_updates_sync_meta_for_ajax_uploads(): void {
+		$attachment_id = self::factory()->attachment->create();
+		$GLOBALS['onemedia_media_protection_wp_doing_ajax_callback'] = static fn (): bool => true;
+		$_POST['_wpnonce']         = wp_create_nonce( 'media-form' );
+		$_REQUEST['action']        = 'upload-attachment';
+		$_POST['is_onemedia_sync'] = 'false';
+
+		( new MediaProtection() )->add_term_to_attachment( $attachment_id );
+
+		$this->assertSame( '0', get_post_meta( $attachment_id, Attachment::IS_SYNC_POSTMETA_KEY, true ) );
+
+		$_POST['is_onemedia_sync'] = 'true';
+
+		( new MediaProtection() )->add_term_to_attachment( $attachment_id );
+
+		$this->assertSame( '1', get_post_meta( $attachment_id, Attachment::IS_SYNC_POSTMETA_KEY, true ) );
 	}
 
 	/**
@@ -101,5 +158,33 @@ final class MediaProtectionTest extends TestCase {
 		Attachment::set_is_synced( $attachment_id, false );
 
 		$this->assertTrue( user_can( $user_id, 'edit_post', $attachment_id ) );
+	}
+
+	/**
+	 * Tests capability filtering returns the original capabilities for editable attachments.
+	 */
+	public function test_prevent_sync_media_editing_leaves_caps_unchanged_for_non_synced_attachments(): void {
+		$protection    = new MediaProtection();
+		$attachment_id = self::factory()->attachment->create();
+		$caps          = [ 'edit_posts' ];
+
+		$this->assertSame(
+			$caps,
+			$protection->prevent_sync_media_editing( $caps, 'edit_post', 1, [ $attachment_id ] )
+		);
+	}
+
+	/**
+	 * Tests capability filtering returns the original capabilities for non-attachment targets.
+	 */
+	public function test_prevent_sync_media_editing_leaves_caps_unchanged_for_non_attachments(): void {
+		$protection = new MediaProtection();
+		$post_id    = self::factory()->post->create();
+		$caps       = [ 'edit_posts' ];
+
+		$this->assertSame(
+			$caps,
+			$protection->prevent_sync_media_editing( $caps, 'edit_post', 1, [ $post_id ] )
+		);
 	}
 }

@@ -173,9 +173,12 @@ class MediaActions implements Registrable {
 		}
 
 		// Delete synced media from options.
+		// phpcs:ignore Squiz.Commenting.InlineComment.InvalidEndChar -- PHPUnit coverage marker.
+		// @codeCoverageIgnoreStart
 		if ( ! isset( $synced_brand_site_media[ $attachment_id ] ) ) {
 			return;
 		}
+		// @codeCoverageIgnoreEnd
 
 		unset( $synced_brand_site_media[ $attachment_id ] );
 		update_option( Settings::BRAND_SITES_SYNCED_MEDIA, $synced_brand_site_media );
@@ -361,7 +364,7 @@ class MediaActions implements Registrable {
 		}
 
 		// Check if this is a version restore operation.
-		$is_version_restore = ! empty( filter_input( INPUT_POST, 'is_version_restore', FILTER_VALIDATE_BOOLEAN ) );
+		$is_version_restore = ! empty( $this->get_filtered_input( INPUT_POST, 'is_version_restore', FILTER_VALIDATE_BOOLEAN ) );
 
 		// Get the file input.
 		$input_file = isset( $_FILES['file'] ) && ! empty( $_FILES['file']['name'] ) ? wp_unslash( $_FILES['file'] ) : null; // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Sanitized later in sanitize_file_input().
@@ -388,7 +391,7 @@ class MediaActions implements Registrable {
 		}
 
 		// Get and validate media ID.
-		$current_media_id = filter_input( INPUT_POST, 'current_media_id', FILTER_VALIDATE_INT );
+		$current_media_id = $this->get_filtered_input( INPUT_POST, 'current_media_id', FILTER_VALIDATE_INT );
 		if ( empty( $current_media_id ) ) {
 			wp_send_json_error( [ 'message' => __( 'Invalid media ID.', 'onemedia' ) ], 400 );
 		}
@@ -427,6 +430,18 @@ class MediaActions implements Registrable {
 				'message'       => __( 'Media replaced successfully.', 'onemedia' ),
 			]
 		);
+	}
+
+	/**
+	 * Read a filtered input value.
+	 *
+	 * @param int                   $type     Input type.
+	 * @param string                $var_name Input name.
+	 * @param int                   $filter   Filter id.
+	 * @param array<int, mixed>|int $options  Filter options.
+	 */
+	protected function get_filtered_input( int $type, string $var_name, int $filter = FILTER_DEFAULT, array|int $options = 0 ): mixed {
+		return Utils::get_filtered_input( $type, $var_name, $filter, $options );
 	}
 
 	/**

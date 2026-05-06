@@ -14,6 +14,7 @@ namespace OneMedia\Modules\MediaLibrary;
 use OneMedia\Contracts\Interfaces\Registrable;
 use OneMedia\Modules\MediaSharing\Attachment;
 use OneMedia\Modules\Settings\Settings;
+use OneMedia\Utils;
 
 /**
  * Class Admin
@@ -78,7 +79,9 @@ class ConsumerAdmin implements Registrable {
 			// Redirect back to prevent deletion.
 			$redirect_url = admin_url( 'upload.php' );
 			wp_safe_redirect( $redirect_url );
+			// @codeCoverageIgnoreStart
 			exit;
+			// @codeCoverageIgnoreEnd
 		}
 
 		return $check;
@@ -117,7 +120,7 @@ class ConsumerAdmin implements Registrable {
 	 * Prevent attachment edit.
 	 */
 	public function prevent_attachment_edit(): void {
-		$post_id = filter_input( INPUT_GET, 'post', FILTER_VALIDATE_INT );
+		$post_id = $this->get_filtered_input( INPUT_GET, 'post', FILTER_VALIDATE_INT );
 		$post_id = isset( $post_id ) ? intval( $post_id ) : 0;
 
 		// Only check for attachments.
@@ -143,7 +146,9 @@ class ConsumerAdmin implements Registrable {
 		// Redirect back to media library.
 		$redirect_url = admin_url( 'upload.php' );
 		wp_safe_redirect( $redirect_url );
+		// @codeCoverageIgnoreStart
 		exit;
+		// @codeCoverageIgnoreEnd
 	}
 
 	/**
@@ -209,5 +214,19 @@ class ConsumerAdmin implements Registrable {
 		}
 
 		return $actions;
+	}
+
+	/**
+	 * Read a filtered input value.
+	 *
+	 * @param int                   $type     Input type.
+	 * @param string                $var_name Input name.
+	 * @param int                   $filter   Filter id.
+	 * @param array<int, mixed>|int $options  Filter options.
+	 *
+	 * @codeCoverageIgnore
+	 */
+	protected function get_filtered_input( int $type, string $var_name, int $filter = FILTER_DEFAULT, array|int $options = 0 ): mixed {
+		return Utils::get_filtered_input( $type, $var_name, $filter, $options );
 	}
 }

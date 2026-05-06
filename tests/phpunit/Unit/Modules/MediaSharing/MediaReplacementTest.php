@@ -83,6 +83,36 @@ final class MediaReplacementTest extends TestCase {
 	}
 
 	/**
+	 * Tests matching attachment markup that produces no content change is skipped.
+	 */
+	public function test_replace_image_across_all_post_types_skips_updates_when_replacement_matches_original_content(): void {
+		$attachment_id = self::factory()->attachment->create();
+		$post_id       = self::factory()->post->create(
+			[
+				'post_content' => sprintf(
+					'<figure class="wp-block-image"><img class="wp-image-%1$d" src="https://same.test/image.jpg" alt="Same alt"><figcaption class="wp-element-caption">Same caption</figcaption></figure>',
+					$attachment_id
+				),
+			]
+		);
+
+		MediaReplacement::replace_image_across_all_post_types(
+			$attachment_id,
+			'https://same.test/image.jpg',
+			'Same alt',
+			'Same caption'
+		);
+
+		$this->assertSame(
+			sprintf(
+				'<figure class="wp-block-image"><img class="wp-image-%1$d" src="https://same.test/image.jpg" alt="Same alt"><figcaption class="wp-element-caption">Same caption</figcaption></figure>',
+				$attachment_id
+			),
+			get_post_field( 'post_content', $post_id )
+		);
+	}
+
+	/**
 	 * Tests private HTML replacement branches that are not always reachable from database fixtures.
 	 */
 	public function test_replace_image_content_adds_missing_alt_and_caption(): void {

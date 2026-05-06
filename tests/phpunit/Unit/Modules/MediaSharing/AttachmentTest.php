@@ -277,4 +277,55 @@ final class AttachmentTest extends TestCase {
 			$result
 		);
 	}
+
+	/**
+	 * Tests health check keeps duplicate failed entries but deduplicates site names in the summary.
+	 */
+	public function test_health_check_attachment_brand_sites_deduplicates_failed_site_names_in_message(): void {
+		$attachment_id = self::factory()->attachment->create();
+		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_GOVERNING, false );
+		update_post_meta(
+			$attachment_id,
+			Attachment::SYNC_SITES_POSTMETA_KEY,
+			[
+				[ 'site' => 'https://dup-status-a.test' ],
+				[ 'site' => 'https://dup-status-b.test' ],
+			]
+		);
+		Settings::set_shared_sites(
+			[
+				[
+					'name'    => 'Duplicate Status',
+					'url'     => 'https://dup-status-a.test',
+					'api_key' => 'dup-key-a',
+				],
+				[
+					'name'    => 'Duplicate Status',
+					'url'     => 'https://dup-status-b.test',
+					'api_key' => 'dup-key-b',
+				],
+			]
+		);
+
+		$http_filter = static fn () => [
+			'headers'  => [],
+			'body'     => '',
+			'response' => [
+				'code'    => 500,
+				'message' => 'Server Error',
+			],
+			'cookies'  => [],
+			'filename' => null,
+		];
+
+		add_filter( 'pre_http_request', $http_filter, 10, 0 );
+		$result = Attachment::health_check_attachment_brand_sites( $attachment_id );
+		remove_filter( 'pre_http_request', $http_filter, 10 );
+
+		$this->assertFalse( $result['success'] );
+		$this->assertCount( 2, $result['failed_sites'] );
+		$this->assertSame( 'HTTP 500 response', $result['failed_sites'][0]['message'] );
+		$this->assertSame( 'Duplicate Status', $result['failed_sites'][0]['site_name'] );
+		$this->assertSame( 1, substr_count( $result['message'], 'Duplicate Status' ) );
+	}
 }

@@ -216,11 +216,7 @@ class Admin implements Registrable {
 			return;
 		}
 
-		$sync_status = isset( $_GET[ Attachment::SYNC_STATUS_POSTMETA_KEY ] )
-			? sanitize_text_field( wp_unslash( $_GET[ Attachment::SYNC_STATUS_POSTMETA_KEY ] ) )
-			: '';
-
-		if ( Attachment::SYNC_STATUS_SYNC === $sync_status ) {
+		if ( Attachment::SYNC_STATUS_SYNC === $onemedia_sync_status ) {
 			$query->set(
 				'meta_query',
 				[
@@ -231,7 +227,7 @@ class Admin implements Registrable {
 					],
 				]
 			);
-		} elseif ( Attachment::SYNC_STATUS_NO_SYNC === $sync_status ) {
+		} elseif ( Attachment::SYNC_STATUS_NO_SYNC === $onemedia_sync_status ) {
 			$query->set(
 				'meta_query',
 				[

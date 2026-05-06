@@ -12,6 +12,7 @@ namespace OneMedia\Tests\Unit;
 use OneMedia\Autoloader;
 use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 
 /**
  * Test class.
@@ -36,6 +37,16 @@ final class AutoloaderTest extends TestCase {
 		$property->setValue( null, false );
 
 		$this->assertTrue( Autoloader::autoload() );
+		$this->assertTrue( Autoloader::autoload() );
+	}
+
+	/**
+	 * Tests that autoload short-circuits when autoloading is explicitly disabled.
+	 */
+	#[RunInSeparateProcess]
+	public function test_autoload_returns_true_when_autoload_is_disabled(): void {
+		define( 'ONEMEDIA_AUTOLOAD', false );
+
 		$this->assertTrue( Autoloader::autoload() );
 	}
 
