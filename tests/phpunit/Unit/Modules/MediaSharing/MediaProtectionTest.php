@@ -36,6 +36,15 @@ final class MediaProtectionTest extends TestCase {
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	protected function tearDown(): void {
+		delete_transient( 'onemedia_delete_notice' );
+
+		parent::tearDown();
+	}
+
+	/**
 	 * Tests no errors on hook registration.
 	 */
 	public function test_register_hooks_adds_expected_hooks(): void {
@@ -43,6 +52,35 @@ final class MediaProtectionTest extends TestCase {
 		$protection->register_hooks();
 
 		$this->assertTrue( true );
+	}
+
+	/**
+	 * Tests show_deletion_notice outputs nothing when the transient is missing.
+	 */
+	public function test_show_deletion_notice_outputs_nothing_when_transient_missing(): void {
+		$protection = new MediaProtection();
+
+		ob_start();
+		$protection->show_deletion_notice();
+		$output = ob_get_clean();
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
+	 * Tests show_deletion_notice outputs a notice when the transient is set.
+	 */
+	public function test_show_deletion_notice_outputs_notice_when_transient_is_set(): void {
+		set_transient( 'onemedia_delete_notice', true );
+
+		$protection = new MediaProtection();
+
+		ob_start();
+		$protection->show_deletion_notice();
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'notice-error', (string) $output );
+		$this->assertFalse( get_transient( 'onemedia_delete_notice' ) );
 	}
 
 	/**

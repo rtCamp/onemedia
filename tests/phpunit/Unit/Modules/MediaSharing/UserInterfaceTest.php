@@ -62,6 +62,49 @@ final class UserInterfaceTest extends TestCase {
 	}
 
 	/**
+	 * Tests render_sync_column outputs the synced badge for synced attachments.
+	 */
+	public function test_render_sync_column_outputs_synced_badge(): void {
+		Attachment::set_is_synced( $this->attachment->ID, true );
+
+		$ui = new UserInterface();
+
+		ob_start();
+		$ui->render_sync_column( 'onemedia_sync_status', $this->attachment->ID );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'onemedia-sync-badge', (string) $output );
+		$this->assertStringContainsString( 'Synced', (string) $output );
+	}
+
+	/**
+	 * Tests render_sync_column outputs the not-synced badge for non-synced attachments.
+	 */
+	public function test_render_sync_column_outputs_not_synced_badge(): void {
+		$ui = new UserInterface();
+
+		ob_start();
+		$ui->render_sync_column( 'onemedia_sync_status', $this->attachment->ID );
+		$output = ob_get_clean();
+
+		$this->assertStringContainsString( 'dashicons-no', (string) $output );
+		$this->assertStringContainsString( 'Not synced', (string) $output );
+	}
+
+	/**
+	 * Tests render_sync_column returns early for other columns.
+	 */
+	public function test_render_sync_column_returns_early_for_other_column(): void {
+		$ui = new UserInterface();
+
+		ob_start();
+		$ui->render_sync_column( 'title', $this->attachment->ID );
+		$output = ob_get_clean();
+
+		$this->assertSame( '', $output );
+	}
+
+	/**
 	 * Tests filter_media_row_actions removes delete action for synced attachment.
 	 */
 	public function test_filter_media_row_actions_removes_delete_for_synced(): void {

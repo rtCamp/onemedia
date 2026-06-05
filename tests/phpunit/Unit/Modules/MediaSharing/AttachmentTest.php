@@ -105,4 +105,25 @@ final class AttachmentTest extends TestCase {
 	public function test_get_sync_attachment_versions_returns_empty_when_not_set(): void {
 		$this->assertSame( [], Attachment::get_sync_attachment_versions( $this->attachment_id ) );
 	}
+
+	/**
+	 * Tests update_sync_attachment_versions returns false for empty versions.
+	 */
+	public function test_update_sync_attachment_versions_returns_false_for_empty_versions(): void {
+		$this->assertFalse( Attachment::update_sync_attachment_versions( $this->attachment_id, [] ) );
+	}
+
+	/**
+	 * Tests health_check_attachment_brand_sites returns an error payload for invalid attachment IDs.
+	 */
+	public function test_health_check_attachment_brand_sites_returns_error_payload_for_invalid_attachment_id(): void {
+		$this->assertSame(
+			[
+				'success'      => false,
+				'failed_sites' => [],
+				'message'      => 'Invalid attachment ID.',
+			],
+			Attachment::health_check_attachment_brand_sites( null )
+		);
+	}
 }
