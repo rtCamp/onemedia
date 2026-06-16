@@ -7,7 +7,7 @@ updates:
       interval: weekly
     open-pull-requests-limit: 10
     commit-message:
-      prefix: "chore(deps)" # These should not cause a bump.
+      prefix: 'chore(deps)' # These should not cause a bump.
     labels:
       - Dependencies
     groups:
@@ -25,8 +25,8 @@ updates:
       semver-patch-days: 7
     versioning-strategy: increase
     commit-message:
-      prefix: "build(deps)"
-      prefix-development: "build(deps-dev)"
+      prefix: 'build(deps)'
+      prefix-development: 'build(deps-dev)'
     labels:
       - Dependencies
     groups:
@@ -49,8 +49,8 @@ updates:
       semver-patch-days: 7
     versioning-strategy: increase
     commit-message:
-      prefix: "build(deps)"
-      prefix-development: "build(deps-dev)"
+      prefix: 'build(deps)'
+      prefix-development: 'build(deps-dev)'
     labels:
       - Dependencies
     groups:

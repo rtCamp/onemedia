@@ -68,7 +68,7 @@ jobs:
               - '**.ts'
               - '**.tsx'
               - 'package*.json'
-              - '.eslintrc*'
+              - 'eslint.config.mjs'
               - 'tsconfig*.json'
             css:
               - .github/workflows/reusable-lint-css-js.yml

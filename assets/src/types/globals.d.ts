@@ -1,3 +1,6 @@
+/**
+ * Internal dependencies
+ */
 import type { MimeTypeMap } from './media-sharing';
 import type { SiteType } from './settings';
 import type { WPMediaAttachmentModel, WPMediaFrame } from './wordpress';
