@@ -74,7 +74,7 @@ final class EncryptorTest extends TestCase {
 			'random string' => [ 'Sensitive data: ' . uniqid( '', true ) ],
 			'unicode'       => [ 'こんにちは 👋 Привет مرحبا café' ],
 			'empty string'  => [ '' ],
-			'long string'   => [ str_repeat( 'OneSearch long string 12345 ', 500 ) ],
+			'long string'   => [ str_repeat( 'OneMedia long string 12345 ', 500 ) ],
 		];
 	}
 
