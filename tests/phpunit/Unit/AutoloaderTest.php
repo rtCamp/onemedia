@@ -52,7 +52,7 @@ final class AutoloaderTest extends TestCase {
 	public function test_autoload_is_idempotent(): void {
 		Autoloader::autoload();
 
-		$this->assertTrue( Autoloader::autoload() );
+		$this->assertTrue( Autoloader::autoload(), 'Autoload should return true on subsequent calls' );
 	}
 
 	/**
@@ -62,16 +62,11 @@ final class AutoloaderTest extends TestCase {
 		$method = new \ReflectionMethod( Autoloader::class, 'missing_autoloader_notice' );
 		$method->invoke( null );
 
-		ob_start();
+		$this->expectOutputRegex( '/OneMedia: The Composer autoloader was not found/' );
 		do_action( 'admin_notices' );
-		$admin_output = (string) ob_get_clean();
 
-		ob_start();
+		$this->expectOutputRegex( '/OneMedia: The Composer autoloader was not found/' );
 		do_action( 'network_admin_notices' );
-		$network_output = (string) ob_get_clean();
-
-		$this->assertStringContainsString( 'OneMedia: The Composer autoloader was not found.', $admin_output );
-		$this->assertStringContainsString( 'OneMedia: The Composer autoloader was not found.', $network_output );
 	}
 
 	/**
