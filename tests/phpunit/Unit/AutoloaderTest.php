@@ -62,11 +62,13 @@ final class AutoloaderTest extends TestCase {
 		$method = new \ReflectionMethod( Autoloader::class, 'missing_autoloader_notice' );
 		$method->invoke( null );
 
-		$this->expectOutputRegex( '/OneMedia: The Composer autoloader was not found/' );
+		ob_start();
 		do_action( 'admin_notices' );
+		$this->assertStringContainsString( 'OneMedia: The Composer autoloader was not found.', ob_get_clean() );
 
-		$this->expectOutputRegex( '/OneMedia: The Composer autoloader was not found/' );
+		ob_start();
 		do_action( 'network_admin_notices' );
+		$this->assertStringContainsString( 'OneMedia: The Composer autoloader was not found.', ob_get_clean() );
 	}
 
 	/**

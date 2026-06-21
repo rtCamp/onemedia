@@ -36,15 +36,12 @@ final class MainTest extends TestCase {
 		$this->reset_main_singleton();
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
 	protected function tearDown(): void {
 		$this->reset_main_singleton();
 
 		null === $this->original_permalink_structure
-			? update_option( 'permalink_structure', $this->original_permalink_structure )
-			: delete_option( 'permalink_structure' );
+			? delete_option( 'permalink_structure' )
+			: update_option( 'permalink_structure', $this->original_permalink_structure );
 
 		parent::tearDown();
 	}
@@ -52,7 +49,7 @@ final class MainTest extends TestCase {
 	/**
 	 * Tests the main plugin class returns a singleton instance.
 	 */
-	public function test_get_instance_returns_singleton(): void {
+	public function test_instance_returns_singleton(): void {
 		$this->assertSame( Main::instance(), Main::instance() );
 	}
 
