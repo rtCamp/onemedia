@@ -36,6 +36,9 @@ final class MainTest extends TestCase {
 		$this->reset_main_singleton();
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
 	protected function tearDown(): void {
 		$this->reset_main_singleton();
 
