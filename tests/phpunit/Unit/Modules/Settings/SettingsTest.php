@@ -405,9 +405,9 @@ final class SettingsTest extends TestCase {
 	}
 
 	/**
-	 * Tests set_shared_sites skips entries with an empty api_key or url.
+	 * Tests set_shared_sites skips processing for entries with an empty URL or API key.
 	 */
-	public function test_set_shared_sites_skips_entries_with_empty_api_key_or_url(): void {
+	public function test_set_shared_sites_skips_field_processing_for_empty_api_key_or_url(): void {
 		$sites = [
 			[
 				'id'      => 'a',
