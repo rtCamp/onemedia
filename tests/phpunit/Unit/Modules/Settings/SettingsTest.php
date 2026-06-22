@@ -71,9 +71,6 @@ final class SettingsTest extends TestCase {
 		$settings->register_settings();
 
 		$this->assertSettingRegistered( Settings::OPTION_SITE_TYPE );
-
-		$this->assertSettingNotRegistered( Settings::OPTION_CONSUMER_API_KEY );
-		$this->assertSettingNotRegistered( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
 	}
 
 	/**
@@ -99,6 +96,9 @@ final class SettingsTest extends TestCase {
 		$settings->register_settings();
 
 		$this->assertSettingRegistered( Settings::OPTION_GOVERNING_SHARED_SITES );
+
+		$this->assertSettingNotRegistered( Settings::OPTION_CONSUMER_API_KEY );
+		$this->assertSettingNotRegistered( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
 	}
 
 	/**
