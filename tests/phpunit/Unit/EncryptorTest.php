@@ -12,48 +12,82 @@ namespace OneMedia\Tests\Unit;
 use OneMedia\Encryptor;
 use OneMedia\Tests\TestCase;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 
 /**
- * @covers \OneMedia\Encryptor
+ * Class EncryptorTest
  */
 #[CoversClass( Encryptor::class )]
 final class EncryptorTest extends TestCase {
 	/**
-	 * Tests that encrypted values decrypt back to their original value.
+	 * Test encrypt/decrypt roundtrip with various inputs.
+	 *
+	 * @param string $raw The raw input to encrypt then decrypt.
+	 *
+	 * @dataProvider roundtrip_provider
 	 */
-	public function test_encrypt_and_decrypt_round_trip_value(): void {
-		$raw_value = 'https://example.com/private-media.jpg?token=abc123';
+	#[DataProvider( 'roundtrip_provider' )]
+	public function test_encrypt_decrypt_roundtrip( string $raw ): void {
+		$encrypted = Encryptor::encrypt( $raw );
 
-		$encrypted_value = Encryptor::encrypt( $raw_value );
-
-		$this->assertIsString( $encrypted_value );
-		$this->assertNotSame( $raw_value, $encrypted_value );
-		$this->assertSame( $raw_value, Encryptor::decrypt( $encrypted_value ) );
+		$this->assertIsString( $encrypted );
+		$this->assertNotSame( $raw, $encrypted );
+		$this->assertSame( $raw, Encryptor::decrypt( $encrypted ) );
 	}
 
 	/**
-	 * Tests that invalid base64 input is treated as an already plain value.
+	 * Test decrypt returns input unchanged when given invalid base64.
+	 *
+	 * @param string $invalid The invalid input string.
+	 *
+	 * @dataProvider invalid_input_provider
 	 */
-	public function test_decrypt_returns_raw_value_when_value_is_not_base64(): void {
-		$raw_value = 'not encrypted % value';
-
-		$this->assertSame( $raw_value, Encryptor::decrypt( $raw_value ) );
+	#[DataProvider( 'invalid_input_provider' )]
+	public function test_decrypt_returns_input_on_invalid_base64( string $invalid ): void {
+		$this->assertSame( $invalid, Encryptor::decrypt( $invalid ) );
 	}
 
 	/**
-	 * Tests that decrypting tampered encrypted data fails.
+	 * Test tampered ciphertext fails decryption.
 	 */
-	public function test_decrypt_returns_false_when_payload_is_tampered(): void {
-		$encrypted_value = Encryptor::encrypt( 'secret value' );
+	public function test_decrypt_returns_false_on_tampered_ciphertext(): void {
+		$encrypted = Encryptor::encrypt( 'Sensitive data: ' . uniqid( '', true ) );
+		$decoded   = base64_decode( $encrypted, true );
 
-		$this->assertIsString( $encrypted_value );
+		$iv_length   = openssl_cipher_iv_length( 'aes-256-ctr' );
+		$iv          = substr( $decoded, 0, $iv_length );
+		$ciphertext  = substr( $decoded, $iv_length );
+		$last_offset = strlen( $ciphertext ) - 1;
 
-		$decoded_value = base64_decode( $encrypted_value, true );
+		$ciphertext[ $last_offset ] = 'A' === $ciphertext[ $last_offset ] ? 'B' : 'A';
 
-		$this->assertIsString( $decoded_value );
+		$this->assertFalse( Encryptor::decrypt( base64_encode( $iv . $ciphertext ) ) );
+	}
 
-		$tampered_value = base64_encode( $decoded_value . 'tampered' );
+	/**
+	 * Provides input strings for roundtrip testing.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function roundtrip_provider(): array {
+		return [
+			'random string' => [ 'Sensitive data: ' . uniqid( '', true ) ],
+			'unicode'       => [ 'こんにちは 👋 Привет مرحبا café' ],
+			'empty string'  => [ '' ],
+			'long string'   => [ str_repeat( 'OneMedia long string 12345 ', 500 ) ],
+		];
+	}
 
-		$this->assertFalse( Encryptor::decrypt( $tampered_value ) );
+	/**
+	 * Provides invalid inputs for decrypt passthrough testing.
+	 *
+	 * @return array<string, array{string}>
+	 */
+	public static function invalid_input_provider(): array {
+		return [
+			'not base64'  => [ 'not-valid-base64!' ],
+			'bad padding' => [ '%%==' ],
+			'plain text'  => [ 'plain text' ],
+		];
 	}
 }
