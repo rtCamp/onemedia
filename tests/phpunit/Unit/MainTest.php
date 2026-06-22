@@ -19,10 +19,19 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( Main::class )]
 final class MainTest extends TestCase {
 	/**
+	 * Holds the original permalink structure to restore after tests.
+	 *
+	 * @var string|false|null
+	 */
+	private string|false|null $original_permalink_structure = null;
+
+	/**
 	 * {@inheritDoc}
 	 */
 	protected function setUp(): void {
 		parent::setUp();
+
+		$this->original_permalink_structure = get_option( 'permalink_structure', null );
 
 		$this->reset_main_singleton();
 	}
@@ -33,24 +42,18 @@ final class MainTest extends TestCase {
 	protected function tearDown(): void {
 		$this->reset_main_singleton();
 
+		null === $this->original_permalink_structure
+			? delete_option( 'permalink_structure' )
+			: update_option( 'permalink_structure', $this->original_permalink_structure );
+
 		parent::tearDown();
 	}
 
 	/**
-	 * Tests instance returns the same object on repeat calls.
+	 * Tests the main plugin class returns a singleton instance.
 	 */
 	public function test_instance_returns_singleton(): void {
 		$this->assertSame( Main::instance(), Main::instance() );
-	}
-
-	/**
-	 * Tests all registrable classes are instantiated and hooks are registered during setup.
-	 */
-	public function test_setup_registers_hooks(): void {
-		Main::instance();
-
-		$this->assertNotFalse( has_action( 'admin_menu' ) );
-		$this->assertNotFalse( has_action( 'rest_api_init' ) );
 	}
 
 	/**

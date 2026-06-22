@@ -14,7 +14,7 @@ use OneMedia\Utils;
 use PHPUnit\Framework\Attributes\CoversClass;
 
 /**
- * @covers \OneMedia\Utils
+ * Class UtilsTest
  */
 #[CoversClass( Utils::class )]
 final class UtilsTest extends TestCase {
