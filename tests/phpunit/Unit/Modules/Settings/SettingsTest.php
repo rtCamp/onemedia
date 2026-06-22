@@ -20,11 +20,6 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( Settings::class )]
 final class SettingsTest extends TestCase {
 	/**
-	 * @var \OneMedia\Modules\Settings\Settings
-	 */
-	private Settings $settings;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	protected function setUp(): void {
@@ -35,6 +30,10 @@ final class SettingsTest extends TestCase {
 		delete_option( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
 		delete_option( Settings::OPTION_GOVERNING_SHARED_SITES );
 		delete_option( Settings::BRAND_SITES_SYNCED_MEDIA );
+
+		// Reset the setting globals.
+		$GLOBALS['wp_registered_settings'] = [];
+		$GLOBALS['new_allowed_options']    = [];
 	}
 
 	/**
@@ -46,6 +45,10 @@ final class SettingsTest extends TestCase {
 		delete_option( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
 		delete_option( Settings::OPTION_GOVERNING_SHARED_SITES );
 		delete_option( Settings::BRAND_SITES_SYNCED_MEDIA );
+
+		// Reset the setting globals.
+		$GLOBALS['wp_registered_settings'] = [];
+		$GLOBALS['new_allowed_options']    = [];
 
 		parent::tearDown();
 	}
