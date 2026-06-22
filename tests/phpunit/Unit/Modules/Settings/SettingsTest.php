@@ -1,6 +1,6 @@
 <?php
 /**
- * Tests for the Settings\Settings class.
+ * Settings unit tests.
  *
  * @package OneMedia\Tests\Unit\Modules\Settings
  */
@@ -20,17 +20,20 @@ use PHPUnit\Framework\Attributes\CoversClass;
 #[CoversClass( Settings::class )]
 final class SettingsTest extends TestCase {
 	/**
-	 * @var \OneMedia\Modules\Settings\Settings
-	 */
-	private Settings $settings;
-
-	/**
 	 * {@inheritDoc}
 	 */
 	protected function setUp(): void {
 		parent::setUp();
 
-		$this->settings = new Settings();
+		delete_option( Settings::OPTION_SITE_TYPE );
+		delete_option( Settings::OPTION_CONSUMER_API_KEY );
+		delete_option( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
+		delete_option( Settings::OPTION_GOVERNING_SHARED_SITES );
+		delete_option( Settings::BRAND_SITES_SYNCED_MEDIA );
+
+		// Reset the setting globals.
+		$GLOBALS['wp_registered_settings'] = [];
+		$GLOBALS['new_allowed_options']    = [];
 	}
 
 	/**
@@ -43,6 +46,10 @@ final class SettingsTest extends TestCase {
 		delete_option( Settings::OPTION_GOVERNING_SHARED_SITES );
 		delete_option( Settings::BRAND_SITES_SYNCED_MEDIA );
 
+		// Reset the setting globals.
+		$GLOBALS['wp_registered_settings'] = [];
+		$GLOBALS['new_allowed_options']    = [];
+
 		parent::tearDown();
 	}
 
@@ -50,8 +57,10 @@ final class SettingsTest extends TestCase {
 	 * Tests no errors on class instantiation.
 	 */
 	public function test_register_hooks_adds_actions(): void {
-		$this->settings->register_hooks();
-		$this->settings->register_settings();
+		$settings = new Settings();
+
+		$settings->register_hooks();
+		$settings->register_settings();
 
 		$this->assertTrue( true );
 	}
@@ -60,7 +69,9 @@ final class SettingsTest extends TestCase {
 	 * Tests register_settings registers the site type setting.
 	 */
 	public function test_register_settings_registers_site_type(): void {
-		$this->settings->register_settings();
+		$settings = new Settings();
+
+		$settings->register_settings();
 
 		$this->assertSettingRegistered( Settings::OPTION_SITE_TYPE );
 	}
@@ -71,7 +82,8 @@ final class SettingsTest extends TestCase {
 	public function test_register_settings_registers_consumer_options(): void {
 		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER );
 
-		$this->settings->register_settings();
+		$settings = new Settings();
+		$settings->register_settings();
 
 		$this->assertSettingRegistered( Settings::OPTION_CONSUMER_API_KEY );
 		$this->assertSettingRegistered( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
@@ -83,9 +95,13 @@ final class SettingsTest extends TestCase {
 	public function test_register_settings_registers_governing_options(): void {
 		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_GOVERNING );
 
-		$this->settings->register_settings();
+		$settings = new Settings();
+		$settings->register_settings();
 
 		$this->assertSettingRegistered( Settings::OPTION_GOVERNING_SHARED_SITES );
+
+		$this->assertSettingNotRegistered( Settings::OPTION_CONSUMER_API_KEY );
+		$this->assertSettingNotRegistered( Settings::OPTION_CONSUMER_PARENT_SITE_URL );
 	}
 
 	/**
@@ -135,66 +151,74 @@ final class SettingsTest extends TestCase {
 		$this->assertSame( [], Settings::sanitize_shared_sites( 'string' ) );
 	}
 
-	/**
-	 * Tests sanitize_shared_sites filters out entries missing required fields.
-	 */
-	public function test_sanitize_shared_sites_filters_incomplete_entries(): void {
-		$input = [
-			[ 'name' => 'Site A' ],             // Missing url.
-			[ 'url' => 'https://site-b.com/' ], // Missing name.
-			[],                                  // Empty.
-		];
-
-		$this->assertSame( [], Settings::sanitize_shared_sites( $input ) );
-	}
-
-	/**
-	 * Tests sanitize_shared_sites returns sanitized data for a valid entry.
-	 */
-	public function test_sanitize_shared_sites_sanitizes_valid_entry(): void {
-		$result = Settings::sanitize_shared_sites(
+	/** Ensures sanitize_shared_sites handles valid data. */
+	public function test_sanitize_shared_sites_with_valid_data(): void {
+		$sanitized = Settings::sanitize_shared_sites(
 			[
 				[
-					'name'    => 'Brand Site',
-					'url'     => 'https://example.com',
-					'api_key' => 'test-api-key',
+					'id'      => ' site-id ',
+					'name'    => ' Demo Site ',
+					'url'     => 'https://example.com/path/',
+					'api_key' => ' secret-key ',
 				],
 			]
 		);
 
-		$this->assertCount( 1, $result );
-		$this->assertSame( 'Brand Site', $result[0]['name'] );
-		$this->assertSame( 'https://example.com/', $result[0]['url'] );
-		$this->assertSame( 'test-api-key', $result[0]['api_key'] );
+		$this->assertSame(
+			[
+				[
+					'id'      => 'site-id',
+					'name'    => 'Demo Site',
+					'url'     => 'https://example.com/path/',
+					'api_key' => 'secret-key',
+				],
+			],
+			$sanitized
+		);
+	}
+
+	/**
+	 * Ensures sanitize_shared_sites returns an empty array for non-array input. */
+	public function test_sanitize_shared_sites_returns_empty_for_non_array(): void {
+		$this->assertSame( [], Settings::sanitize_shared_sites( 'not-an-array' ) );
 	}
 
 	/**
 	 * Tests sanitize_shared_sites generates a UUID when id is missing.
 	 */
 	public function test_sanitize_shared_sites_generates_uuid_for_missing_id(): void {
-		$result = Settings::sanitize_shared_sites(
+		$sanitized = Settings::sanitize_shared_sites(
 			[
 				[
-					'name' => 'Brand Site',
+					'name' => 'Demo Site',
 					'url'  => 'https://example.com',
 				],
 			]
 		);
 
-		$this->assertCount( 1, $result );
-		$this->assertMatchesRegularExpression( '/^[0-9a-f-]{36}$/i', $result[0]['id'] );
+		$this->assertCount( 1, $sanitized );
+		$this->assertMatchesRegularExpression( '/^[0-9a-f-]{36}$/i', $sanitized[0]['id'] );
 	}
 
-	/**
-	 * Tests get_shared_sites returns empty array when not set.
-	 */
+	/** Ensures sanitize_shared_sites skips entries without a name or URL. */
+	public function test_sanitize_shared_sites_skips_sites_without_name_or_url(): void {
+		$sanitized = Settings::sanitize_shared_sites(
+			[
+				[
+					'name' => 'Missing URL',
+				],
+			]
+		);
+
+		$this->assertSame( [], $sanitized );
+	}
+
+	/** Ensures get_shared_sites returns an empty array when not set. */
 	public function test_get_shared_sites_returns_empty_when_not_set(): void {
 		$this->assertSame( [], Settings::get_shared_sites() );
 	}
 
-	/**
-	 * Tests shared sites round-trip through storage with encrypted api_key.
-	 */
+	/** Ensures shared sites round-trip through storage. */
 	public function test_set_and_get_shared_sites_roundtrip(): void {
 		$sites = [
 			[
@@ -207,8 +231,8 @@ final class SettingsTest extends TestCase {
 
 		$this->assertTrue( Settings::set_shared_sites( $sites ) );
 
-		$stored = get_option( Settings::OPTION_GOVERNING_SHARED_SITES, [] );
-		$this->assertNotSame( 'brand-one-key', $stored[0]['api_key'] );
+		$stored_sites = get_option( Settings::OPTION_GOVERNING_SHARED_SITES, [] );
+		$this->assertNotSame( 'brand-one-key', $stored_sites[0]['api_key'] );
 
 		$this->assertSame(
 			[
@@ -223,9 +247,7 @@ final class SettingsTest extends TestCase {
 		);
 	}
 
-	/**
-	 * Tests get_shared_site_by_url returns the matching site.
-	 */
+	/** Ensures get_shared_site_by_url returns the matching site. */
 	public function test_get_shared_site_by_url(): void {
 		Settings::set_shared_sites(
 			[
@@ -283,7 +305,8 @@ final class SettingsTest extends TestCase {
 	 * Tests on_site_type_change generates an API key when switching to consumer.
 	 */
 	public function test_on_site_type_change_generates_api_key_for_consumer(): void {
-		$this->settings->on_site_type_change( '', Settings::SITE_TYPE_CONSUMER );
+		$settings = new Settings();
+		$settings->on_site_type_change( '', Settings::SITE_TYPE_CONSUMER );
 
 		$stored_api_key = get_option( Settings::OPTION_CONSUMER_API_KEY, '' );
 
@@ -293,18 +316,134 @@ final class SettingsTest extends TestCase {
 	}
 
 	/**
-	 * Tests get_brand_site_api_key returns empty string when not a governing site.
+	 * Tests the site type sanitize callback rejects invalid values.
 	 */
-	public function test_get_brand_site_api_key_returns_empty_when_not_governing(): void {
-		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER );
+	public function test_site_type_sanitize_callback_rejects_invalid_value(): void {
+		$settings = new Settings();
+		$settings->register_settings();
 
+		$invalid = apply_filters( 'sanitize_option_' . Settings::OPTION_SITE_TYPE, 'invalid-value' );
+		$this->assertSame( '', $invalid, 'Invalid site type should sanitize to empty string.' );
+
+		$valid = apply_filters( 'sanitize_option_' . Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER );
+		$this->assertSame( Settings::SITE_TYPE_CONSUMER, $valid, 'Valid consumer site type should pass through.' );
+	}
+
+	/**
+	 * Tests the consumer parent site URL sanitize callback strips trailing slashes.
+	 */
+	public function test_consumer_parent_site_url_sanitize_callback_strips_trailing_slash(): void {
+		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER );
+		$settings = new Settings();
+		$settings->register_settings();
+
+		$stripped = apply_filters( 'sanitize_option_' . Settings::OPTION_CONSUMER_PARENT_SITE_URL, 'https://example.com/' );
+		$this->assertSame( 'https://example.com', $stripped, 'Trailing slash should be stripped.' );
+
+		$non_string = apply_filters( 'sanitize_option_' . Settings::OPTION_CONSUMER_PARENT_SITE_URL, 12345 );
+		$this->assertNull( $non_string, 'Non-string input should return null.' );
+	}
+
+	/**
+	 * Tests on_site_type_change skips API key generation for non-consumer site types.
+	 */
+	public function test_on_site_type_change_skips_api_key_generation_for_non_consumer(): void {
+		delete_option( Settings::OPTION_CONSUMER_API_KEY );
+
+		$settings = new Settings();
+		$settings->on_site_type_change( '', Settings::SITE_TYPE_GOVERNING );
+
+		$this->assertSame( '', get_option( Settings::OPTION_CONSUMER_API_KEY, '' ), 'API key should not be generated for non-consumer site type.' );
+	}
+
+	/**
+	 * Tests sanitize_shared_sites skips entries that are not arrays.
+	 */
+	public function test_sanitize_shared_sites_skips_non_array_entries(): void {
+		$input = [
+			'string-entry',
+			42,
+			null,
+			[
+				'name'    => 'Valid',
+				'url'     => 'https://valid.example',
+				'api_key' => 'key',
+			],
+		];
+
+		$result = Settings::sanitize_shared_sites( $input );
+
+		$this->assertCount( 1, $result, 'Only the valid array entry should survive.' );
+		$this->assertSame( 'Valid', $result[0]['name'] );
+		$this->assertSame( 'https://valid.example/', $result[0]['url'] );
+	}
+
+	/**
+	 * Tests get_shared_sites filters out entries with an empty URL.
+	 */
+	public function test_get_shared_sites_filters_out_entries_with_empty_url(): void {
+		update_option(
+			Settings::OPTION_GOVERNING_SHARED_SITES,
+			[
+				[
+					'id'      => 'a',
+					'name'    => 'A',
+					'url'     => 'https://a.example',
+					'api_key' => '',
+				],
+				[
+					'id'      => 'b',
+					'name'    => 'B',
+					'url'     => '',
+					'api_key' => '',
+				],
+			]
+		);
+
+		$result = Settings::get_shared_sites();
+
+		$this->assertCount( 1, $result, 'Only the entry with non-empty url should survive.' );
+		$this->assertArrayHasKey( 'https://a.example/', $result );
+		$this->assertSame( 'A', $result['https://a.example/']['name'] );
+	}
+
+	/**
+	 * Tests set_shared_sites skips processing for entries with an empty URL or API key.
+	 */
+	public function test_set_shared_sites_skips_field_processing_for_empty_api_key_or_url(): void {
+		$sites = [
+			[
+				'id'      => 'a',
+				'name'    => 'A',
+				'url'     => '',
+				'api_key' => 'key',
+			],
+			[
+				'id'      => 'b',
+				'name'    => 'B',
+				'url'     => 'https://b.example',
+				'api_key' => '',
+			],
+		];
+
+		$result = Settings::set_shared_sites( $sites );
+
+		$this->assertTrue( $result, 'update_option should succeed.' );
+		$stored = get_option( Settings::OPTION_GOVERNING_SHARED_SITES, [] );
+		$this->assertCount( 2, $stored, 'Both entries should be persisted.' );
+		$this->assertSame( '', $stored[0]['url'], 'First entry url should remain empty (encryption skipped).' );
+		$this->assertSame( '', $stored[1]['api_key'], 'Second entry api_key should remain empty (encryption skipped).' );
+	}
+
+	/**
+	 * Tests get_brand_site_api_key across all branches.
+	 */
+	public function test_get_brand_site_api_key_covers_all_branches(): void {
+		// Phase 1: not governing -> empty string.
+		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER );
 		$this->assertSame( '', Settings::get_brand_site_api_key( 'https://brand-one.example' ) );
-	}
 
-	/**
-	 * Tests get_brand_site_api_key returns the key for a known brand site URL.
-	 */
-	public function test_get_brand_site_api_key_returns_key_for_known_site(): void {
+		// Phase 2: governing + known site -> returns key.
 		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_GOVERNING );
 		Settings::set_shared_sites(
 			[
@@ -316,86 +455,66 @@ final class SettingsTest extends TestCase {
 				],
 			]
 		);
-
 		$this->assertSame( 'brand-one-key', Settings::get_brand_site_api_key( 'https://brand-one.example' ) );
-	}
 
-	/**
-	 * Tests get_sitename_by_url returns the name from shared sites on a governing site.
-	 */
-	public function test_get_sitename_by_url_returns_name_for_governing_site(): void {
-		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_GOVERNING );
-		Settings::set_shared_sites(
-			[
-				[
-					'id'      => 'brand-1',
-					'name'    => 'Brand One',
-					'url'     => 'https://brand-one.example',
-					'api_key' => 'brand-one-key',
-				],
-			]
-		);
-
-		$this->assertSame( 'Brand One', Settings::get_sitename_by_url( 'https://brand-one.example' ) );
-	}
-
-	/**
-	 * Tests get_sitename_by_url derives name from hostname on a consumer site.
-	 */
-	public function test_get_sitename_by_url_derives_name_from_hostname_for_consumer(): void {
-		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER );
-
-		$this->assertSame( 'My Site', Settings::get_sitename_by_url( 'https://my-site.example.com' ) );
-	}
-
-	/**
-	 * Tests get_brand_site_api_key returns empty string when URL is not in shared sites.
-	 */
-	public function test_get_brand_site_api_key_returns_empty_for_unknown_site(): void {
-		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_GOVERNING );
-
+		// Phase 3: governing + unknown site -> empty string.
 		$this->assertSame( '', Settings::get_brand_site_api_key( 'https://unknown.example' ) );
 	}
 
 	/**
-	 * Tests get_sitename_by_url returns empty string when governing site has no match.
+	 * Tests get_sitename_by_url on a governing site.
 	 */
-	public function test_get_sitename_by_url_returns_empty_for_unknown_url_on_governing_site(): void {
+	public function test_get_sitename_by_url_on_governing_site(): void {
 		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_GOVERNING );
+		Settings::set_shared_sites(
+			[
+				[
+					'id'      => 'brand-1',
+					'name'    => 'Brand One',
+					'url'     => 'https://brand-one.example',
+					'api_key' => 'brand-one-key',
+				],
+			]
+		);
 
+		// Phase 1: known URL -> returns name.
+		$this->assertSame( 'Brand One', Settings::get_sitename_by_url( 'https://brand-one.example' ) );
+
+		// Phase 2: unknown URL -> empty string.
 		$this->assertSame( '', Settings::get_sitename_by_url( 'https://unknown.example' ) );
 	}
 
 	/**
-	 * Tests get_sitename_by_url returns empty string when URL has no host on consumer site.
+	 * Tests get_sitename_by_url on a consumer site.
 	 */
-	public function test_get_sitename_by_url_returns_empty_for_invalid_url_on_consumer_site(): void {
+	public function test_get_sitename_by_url_on_consumer_site(): void {
 		update_option( Settings::OPTION_SITE_TYPE, Settings::SITE_TYPE_CONSUMER );
 
+		// Phase 1: valid URL with host -> derives name from hostname.
+		$this->assertSame( 'My Site', Settings::get_sitename_by_url( 'https://my-site.example.com' ) );
+
+		// Phase 2: invalid URL (no host) -> empty string.
 		$this->assertSame( '', Settings::get_sitename_by_url( 'not-a-valid-url' ) );
 	}
 
 	/**
-	 * Tests get_brand_sites_synced_media returns empty array when not set.
+	 * Tests get_brand_sites_synced_media returns the stored option.
 	 */
-	public function test_get_brand_sites_synced_media_returns_empty_when_not_set(): void {
+	public function test_get_brand_sites_synced_media(): void {
+		// Phase 1: not set -> empty array.
+		delete_option( Settings::BRAND_SITES_SYNCED_MEDIA );
 		$this->assertSame( [], Settings::get_brand_sites_synced_media() );
-	}
 
-	/**
-	 * Tests get_brand_sites_synced_media returns stored value.
-	 */
-	public function test_get_brand_sites_synced_media_returns_stored_value(): void {
+		// Phase 2: stored value -> returns it.
 		$data = [ 'https://brand.example/' => [ 'attachment_1' => 42 ] ];
 		update_option( Settings::BRAND_SITES_SYNCED_MEDIA, $data );
-
 		$this->assertSame( $data, Settings::get_brand_sites_synced_media() );
 	}
 
 	/**
-	 * Asserts a setting is registered in WordPress.
+	 * Ensures a setting is registered.
 	 *
-	 * @param string $setting_name Setting name to check.
+	 * @param string $setting_name Setting name.
 	 */
 	private function assertSettingRegistered( string $setting_name ): void {
 		$registered_settings = get_registered_settings();
@@ -405,5 +524,17 @@ final class SettingsTest extends TestCase {
 		global $new_allowed_options;
 
 		$this->assertContains( $setting_name, $new_allowed_options[ Settings::SETTING_GROUP ] ?? [] );
+	}
+
+	/**
+	 * Asserts that a setting is not registered.
+	 *
+	 * @param string $setting_name Setting name.
+	 * @param string $message      Optional failure message.
+	 */
+	private function assertSettingNotRegistered( string $setting_name, string $message = '' ): void {
+		$registered_settings = get_registered_settings();
+
+		$this->assertArrayNotHasKey( $setting_name, $registered_settings, $message );
 	}
 }

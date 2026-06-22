@@ -132,11 +132,6 @@ final class Admin implements Registrable {
 			return;
 		}
 
-		// Bail if the site type is already set.
-		if ( ! empty( Settings::get_site_type() ) ) {
-			return;
-		}
-
 		?>
 		<div class="wrap">
 			<div id="onemedia-site-selection-modal" class="onemedia-modal"></div>
@@ -235,11 +230,6 @@ final class Admin implements Registrable {
 		\WP_Screen $current_screen
 	): string {
 		if ( ! $this->should_display_site_selection_modal() ) {
-			return $classes;
-		}
-
-		// Bail if the site type is already set.
-		if ( ! empty( Settings::get_site_type() ) ) {
 			return $classes;
 		}
 
