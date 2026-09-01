@@ -4,7 +4,9 @@ Donate link: https://rtcamp.com/
 Tags: OneMedia, OnePress, Media Manager, WordPress, Media Manager, WordPress Automation, WordPress
 Requires at least: 6.8
 Tested up to: 6.9
+<!-- x-release-please-start-version -->
 Stable tag: 1.1.3
+<!-- x-release-please-end -->
 Requires PHP: 8.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
