@@ -68,7 +68,7 @@
 		"@wordpress/e2e-test-utils-playwright": "^2.1.0",
 		"@wordpress/env": "^12.1.0",
 		"@wordpress/eslint-plugin": "^27.1.0",
-		"@wordpress/prettier-config": "^4.57.0",
+		"@wordpress/prettier-config": "^5.0.0",
 		"@wordpress/scripts": "^35.0.0",
 		"@wordpress/stylelint-config": "^26.1.0",
 		"cross-env": "^10.1.0",
